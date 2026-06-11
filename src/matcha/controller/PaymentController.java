@@ -38,12 +38,22 @@ public class PaymentController {
         // Untuk sekarang, kita asumsikan semua layanan yang bukan virtual/online memerlukan transport
         double extraFee = calculateExtraFee(booking);
         
+        // Hitung diskon jika ada
+        double discount = calculateDiscount(booking);
+        
+        // Hitung total setelah diskon
+        double totalBeforeDiscount = baseRate + extraFee;
+        double finalTotal = totalBeforeDiscount - discount;
+        
         // 3. Buat dan kembalikan objek Invoice
         String invoiceId = "INV-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
-        Invoice invoice = new Invoice(invoiceId, booking, baseRate, extraFee);
+        Invoice invoice = new Invoice(invoiceId, booking, finalTotal, extraFee);
         
         System.out.println("[PaymentController] Invoice berhasil dibuat: " + invoiceId);
         System.out.println("[PaymentController] Base Rate: Rp " + baseRate + ", Extra Fee: Rp " + extraFee);
+        if (discount > 0) {
+            System.out.println("[PaymentController] Diskon: Rp " + discount + " (Harga Akhir: Rp " + finalTotal + ")");
+        }
         
         return invoice;
     }
@@ -81,6 +91,29 @@ public class PaymentController {
             System.out.println("[PaymentController] Pembayaran gagal diproses.");
             return false;
         }
+    }
+    
+    /**
+     * Method helper untuk menghitung diskon berdasarkan karakteristik booking
+     * Logika diskon dapat disesuaikan sesuai kebijakan bisnis
+     * @param booking Data booking yang akan dihitung diskonnya
+     * @return Nilai diskon (Rp)
+     */
+    private double calculateDiscount(Booking booking) {
+        double discount = 0.0;
+        
+        // Contoh logika diskon:
+        // 1. Diskon untuk Client yang sudah memiliki banyak booking (loyal customer)
+        // 2. Diskon untuk booking jangka panjang
+        // 3. Diskon khusus untuk metode pembayaran tertentu
+        
+        if (booking != null && booking.getClient() != null) {
+            // Logika placeholder: bisa dikembangkan dengan menghitung booking history
+            // Untuk saat ini, tidak ada diskon otomatis (hanya contoh struktur)
+            // Nantinya bisa diisi dengan logika bisnis yang sebenarnya
+        }
+        
+        return discount;
     }
     
     /**
