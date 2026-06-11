@@ -6,8 +6,24 @@ package matcha.model;
 
 /**
  *
- * @Penanggung Jawab: Hendra
+ * Modul 1: Manajemen Pengguna
  */
-public class Client {
-    
+import java.util.ArrayList;
+
+public class Client extends User {
+    private ArrayList<Booking> bookingHistory = new ArrayList<>();
+
+    @Override
+    public boolean verifyIdentity() {
+        // TODO: Implementasi cara verifikasi identitas khusus Client
+        return false;
+    }
+
+    public void requestBooking(Talent talent, Service service) {
+        // TODO: Logika untuk membuat pesanan baru
+    }
+
+    public void viewHistory() {
+        // TODO: Tampilkan isi dari bookingHistory
+    }
 }

@@ -6,8 +6,26 @@ package matcha.model;
 
 /**
  *
- * @Penanggung Jawab: Hendra
+ * Modul 1: Manajemen Pengguna
  */
-public class Talent {
-    
+import java.util.ArrayList;
+
+public class Talent extends User {
+    private Profile profile;
+    private ArrayList<Schedule> scheduleList = new ArrayList<>();
+    private boolean isAvailable;
+
+    @Override
+    public boolean verifyIdentity() {
+        // TODO: Implementasi verifikasi KTP/portofolio khusus Talent
+        return false;
+    }
+
+    public void toggleAvailability() {
+        // TODO: Ubah status isAvailable (true ke false, atau sebaliknya)
+    }
+
+    public void addSchedule(Schedule jadwal) {
+        // TODO: Tambahkan jadwal baru ke scheduleList
+    }
 }

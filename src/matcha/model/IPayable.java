@@ -6,8 +6,9 @@ package matcha.model;
 
 /**
  *
- * @Penanggung Jawab: Didit
+ * Modul 4: Kalkulasi Tarif dan Transaksi
  */
 public interface IPayable {
-    
+    boolean processPayment();
+    void generateReceipt();
 }

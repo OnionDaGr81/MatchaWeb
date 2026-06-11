@@ -6,8 +6,8 @@ package matcha.model;
 
 /**
  *
- * @Penanggung Jawab: Anam
+ * Modul 6: Sistem Notifikasi
  */
 public interface INotifiable {
-    
+    void sendAlert(String message);
 }

@@ -6,8 +6,22 @@ package matcha.model;
 
 /**
  *
- * @Penanggung Jawab: Didit
+ * Modul 4: Kalkulasi Tarif dan Transaksi
  */
-public class Payment {
-    
+public class Payment implements IPayable {
+    private String paymentId;
+    private Invoice tagihan;
+    private String paymentMethod;
+    private String paymentStatus;
+
+    @Override
+    public boolean processPayment() {
+        // TODO: Buat simulasi pemotongan saldo e-wallet pengguna
+        return false;
+    }
+
+    @Override
+    public void generateReceipt() {
+        // TODO: Print struk bukti pembayaran jika processPayment() sukses
+    }
 }

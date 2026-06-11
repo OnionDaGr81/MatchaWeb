@@ -6,8 +6,21 @@ package matcha.model;
 
 /**
  *
- * @Penanggung Jawab: Bastian
+ * Modul 2 : Manajemen Profil dan Layanan
  */
 public class Service {
-    
+    private String serviceId;
+    private String serviceName;
+    private double baseRate;
+    private String deskripsi;
+
+    public double getRate() {
+        // TODO: Kembalikan nilai baseRate, bisa ditambahkan logika polimorfisme nanti
+        return baseRate;
+    }
+
+    public String getServiceDetails() {
+        // TODO: Kembalikan string berisi gabungan serviceName dan deskripsi
+        return "";
+    }
 }
