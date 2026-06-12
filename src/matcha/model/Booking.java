@@ -23,7 +23,7 @@ public class Booking {
     private Schedule bookingSchedule;
     private String status;
 
-     // ─── Constructor ───────────────────────────────────────────────────────────
+     // Constructor
     public Booking(String bookingId, Client client, Talent talent,
                    Service bookedService, Schedule bookingSchedule) {
         if (bookingId == null || bookingId.isBlank()) {
