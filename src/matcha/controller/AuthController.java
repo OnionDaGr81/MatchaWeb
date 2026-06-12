@@ -4,39 +4,58 @@
  */
 package matcha.controller;
 
-/**
- *
- * @Penanggung Jawab: Hendra
- */
+import java.util.ArrayList;
 import matcha.model.User;
-import matcha.model.Client;
-import matcha.model.Talent;
 
 public class AuthController {
-    private User currentUserSession; // Menyimpan data user yang sedang login
 
-    public boolean registerClient(String nama, String email, String password, String noTelp) {
-        // TODO: Buat objek Client baru, enkripsi password, dan simpan ke file/database internal
-        return false;
+    private ArrayList<User> daftarUser;
+
+    public AuthController() {
+        daftarUser = new ArrayList<>();
     }
 
-    public boolean registerTalent(String nama, String email, String password, String noTelp) {
-        // TODO: Buat objek Talent baru, enkripsi password, dan simpan
-        return false;
+    public void register(User user) {
+
+        if (user.verifyIdentity()) {
+            daftarUser.add(user);
+            System.out.println(
+                    "Registrasi berhasil: "
+                    + user.getNama());
+        } else {
+            System.out.println(
+                    "Registrasi gagal. Data tidak valid.");
+        }
     }
 
-    public boolean login(String email, String password) {
-        // TODO: Cari user berdasarkan email, cocokkan password. 
-        // Jika berhasil, masukkan objek user ke currentUserSession
-        return false;
+    public User login(String email, String password) {
+
+        for (User user : daftarUser) {
+
+            if (user.login(email, password)) {
+
+                System.out.println(
+                        "Login berhasil. Selamat datang "
+                        + user.getNama());
+
+                return user;
+            }
+        }
+
+        System.out.println(
+                "Email atau password salah!");
+
+        return null;
     }
 
-    public void logout() {
-        // TODO: Kosongkan currentUserSession
-        this.currentUserSession = null;
+    public void logout(User user) {
+
+        if (user != null) {
+            user.logout();
+        }
     }
 
-    public User getCurrentUser() {
-        return currentUserSession;
+    public ArrayList<User> getDaftarUser() {
+        return daftarUser;
     }
 }
