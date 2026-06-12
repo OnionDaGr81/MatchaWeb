@@ -27,16 +27,40 @@ public class Profile {
     public void setLocation(String loc)  { this.location = loc; }
 
 
-    public void addService(Service service) {
-        // TODO: Tambahkan objek service ke dalam list offeredServices
+   public void addService(Service service) {
+        // Menambahkan objek service ke dalam list
+        this.offeredServices.add(service);
     }
 
     public void updateBio(String newBio) {
-        // TODO: Ubah atribut bio dengan nilai newBio
+        // Mengubah atribut bio
+        this.bio = newBio;
     }
 
     public void displayProfile() {
-        // TODO: Print data bio, daftar layanan, dan rata-rata rating
+        System.out.println("\n=== PROFIL TALENT ===");
+        System.out.println("Bio    : " + (this.bio != null ? this.bio : "Belum ada bio."));
+        System.out.println("Lokasi : " + (this.location != null ? this.location : "Belum diatur."));
+        
+        System.out.println("Layanan yang ditawarkan:");
+        if (this.offeredServices.isEmpty()) {
+            System.out.println("  - Belum ada layanan.");
+        } else {
+            for (Service s : this.offeredServices) {
+                // Memanggil getServiceDetails() dari kelas Service
+                System.out.println("  - " + s.getServiceDetails() + " (Rp" + s.getBaseRate() + ")");
+            }
+        }
+
+        // Opsional: Cek jika objek rating sudah diinisialisasi
+        if (this.reputasi != null) {
+            System.out.println("Rating : " + this.reputasi.calculateAverageRating() + " / 5.0");
+        }
+    }
+
+    // Tambahkan Getter ini agar CatalogController nanti bisa mengecek daftar layanan
+    public ArrayList<Service> getOfferedServices() {
+        return this.offeredServices;
     }
 
 }

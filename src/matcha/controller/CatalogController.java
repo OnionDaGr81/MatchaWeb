@@ -11,25 +11,63 @@ package matcha.controller;
 import matcha.model.Talent;
 import matcha.model.Service;
 import java.util.ArrayList;
+import matcha.util.FileStorageUtil;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 public class CatalogController {
     private ArrayList<Talent> masterTalentList; // List semua talent yang ada di sistem
 
     public CatalogController() {
-        // TODO: Load data talent dari media penyimpanan (file txt/json) ke masterTalentList
+        // Load data talent dari file JSON menggunakan FileStorageUtil
+        this.masterTalentList = FileStorageUtil.readFromFile(
+            "data/talents.json", 
+            new TypeToken<ArrayList<Talent>>(){}.getType()
+        );
+        
+        // Jaga-jaga jika file JSON belum ada / kosong
+        if (this.masterTalentList == null) {
+            this.masterTalentList = new ArrayList<>();
+        }
     }
 
     public ArrayList<Talent> getAllAvailableTalents() {
-        // TODO: Lakukan iterasi pada masterTalentList, kembalikan hanya talent yang isAvailable = true
-        return new ArrayList<>();
+        ArrayList<Talent> availableTalents = new ArrayList<>();
+        
+        for (Talent t : masterTalentList) {
+            // Asumsi di kelas Talent ada getter isAvailable()
+            if (t.istTersedia()) { 
+                availableTalents.add(t);
+            }
+        }
+        return availableTalents;
     }
 
     public ArrayList<Talent> searchTalentByService(String serviceName) {
-        // TODO: Filter talent yang menawarkan layanan tertentu (misal: "Teman Nonton")
-        return new ArrayList<>();
+        ArrayList<Talent> filteredTalents = new ArrayList<>();
+        
+        for (Talent t : masterTalentList) {
+            // Asumsi di kelas Talent ada getter getProfile()
+            if (t.getProfile() != null) {
+                // Looping layanan yang ada di dalam profil talent tersebut
+                for (Service s : t.getProfile().getOfferedServices()) {
+                    // Pakai equalsIgnoreCase agar pencarian tidak sensitif huruf besar/kecil
+                    if (s.getServiceName().equalsIgnoreCase(serviceName)) {
+                        filteredTalents.add(t);
+                        break; // Jika ketemu layanannya, langsung lanjut ke talent berikutnya
+                    }
+                }
+            }
+        }
+        return filteredTalents;
     }
 
     public void showTalentProfile(Talent talent) {
-        // TODO: Ambil objek Profile dari Talent dan panggil displayProfile()
+        if (talent != null && talent.getProfile() != null) {
+            // Memanggil method displayProfile() dari objek Profile milik Talent
+            talent.getProfile().displayProfile();
+        } else {
+            System.out.println("Profil tidak ditemukan atau talent belum mengatur profil.");
+        }
     }
 }

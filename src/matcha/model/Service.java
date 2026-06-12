@@ -19,9 +19,9 @@ public class Service {
         return baseRate;
     }
 
-    public String getServiceDetails() {
-        // TODO: Kembalikan string berisi gabungan serviceName dan deskripsi
-        return "";
+   public String getServiceDetails() {
+        // Menggabungkan nama dan deskripsi agar rapi saat dicetak
+        return this.serviceName + " - " + this.deskripsi;
     }
 
     // Dipakai oleh calculateDiscount() untuk mencocokkan aktivitas favorit talent
