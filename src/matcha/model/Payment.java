@@ -5,15 +5,19 @@
 package matcha.model;
 
 /**
- *
+ * Menangani proses pembayaran dan pencetakan struk bukti transaksi.
+ * Mengimplementasikan IPayable untuk polimorfisme metode pembayaran.
  * Modul 4: Kalkulasi Tarif dan Transaksi
  */
 public class Payment implements IPayable {
+
     private String paymentId;
     private Invoice tagihan;
     private String paymentMethod;
     private String paymentStatus;
-    private double walletBalance = 10000000.0; // Simulasi saldo awal e-wallet Rp 10 juta
+
+    // Static agar saldo tidak reset setiap kali objek Payment baru dibuat
+    private static double walletBalance = 10_000_000.0; // Simulasi saldo awal Rp 10 juta
 
     public Payment(String paymentId, Invoice tagihan, String paymentMethod) {
         this.paymentId = paymentId;
@@ -24,84 +28,58 @@ public class Payment implements IPayable {
 
     @Override
     public boolean processPayment() {
-        // Simulasi pemotongan saldo e-wallet pengguna
+        // Batalkan jika tagihan tidak tersedia
         if (tagihan == null) {
             paymentStatus = "Failed";
-            System.out.println("Error: Tagihan tidak tersedia!");
+            System.out.println("[Payment] Error: Tagihan tidak tersedia!");
             return false;
         }
 
         double totalAmount = tagihan.calculateTotal();
 
-        // Cek saldo e-wallet
+        // Cek apakah saldo mencukupi sebelum memotong
         if (walletBalance < totalAmount) {
             paymentStatus = "Failed";
-            System.out.println("Error: Saldo e-wallet tidak cukup! Dibutuhkan Rp " + totalAmount + ", Saldo Anda: Rp " + walletBalance);
+            System.out.printf("[Payment] Saldo tidak cukup! Dibutuhkan Rp %,.0f, Saldo: Rp %,.0f%n",
+                totalAmount, walletBalance);
             return false;
         }
 
-        // Proses pemotongan saldo
+        // Potong saldo dan tandai pembayaran berhasil
         walletBalance -= totalAmount;
         paymentStatus = "Success";
-        System.out.println("Payment berhasil diproses!");
-        System.out.println("Saldo e-wallet saat ini: Rp " + walletBalance);
+        System.out.printf("[Payment] Pembayaran berhasil! Sisa saldo: Rp %,.0f%n", walletBalance);
         return true;
     }
 
     @Override
     public void generateReceipt() {
-        // Print struk bukti pembayaran jika processPayment() sukses
+        // Cetak struk hanya jika status pembayaran sukses
         if ("Success".equals(paymentStatus)) {
-            System.out.println("\n========= BUKTI PEMBAYARAN ==========");
-            System.out.println("Payment ID: " + paymentId);
-            System.out.println("Metode Pembayaran: " + paymentMethod);
-            System.out.println("Status: " + paymentStatus);
+            System.out.println("\n========= BUKTI PEMBAYARAN =========");
+            System.out.println("Payment ID        : " + paymentId);
+            System.out.println("Metode Pembayaran : " + paymentMethod);
+            System.out.println("Status            : " + paymentStatus);
             System.out.println(tagihan.getInvoiceDetails());
-            System.out.println("Tanggal Transaksi: " + java.time.LocalDateTime.now());
+            System.out.println("Tanggal Transaksi : " + java.time.LocalDateTime.now());
             System.out.println("====================================\n");
         } else {
-            System.out.println("Struk tidak dapat dicetak karena pembayaran belum berhasil!");
+            System.out.println("[Payment] Struk tidak dapat dicetak — pembayaran belum berhasil.");
         }
     }
 
-    // Getter dan Setter
-    public String getPaymentId() {
-        return paymentId;
-    }
+    public String getPaymentId()                        { return paymentId; }
+    public void setPaymentId(String p)                  { this.paymentId = p; }
 
-    public void setPaymentId(String paymentId) {
-        this.paymentId = paymentId;
-    }
+    public Invoice getTagihan()                         { return tagihan; }
+    public void setTagihan(Invoice t)                   { this.tagihan = t; }
 
-    public Invoice getTagihan() {
-        return tagihan;
-    }
+    public String getPaymentMethod()                    { return paymentMethod; }
+    public void setPaymentMethod(String m)              { this.paymentMethod = m; }
 
-    public void setTagihan(Invoice tagihan) {
-        this.tagihan = tagihan;
-    }
+    public String getPaymentStatus()                    { return paymentStatus; }
+    public void setPaymentStatus(String s)              { this.paymentStatus = s; }
 
-    public String getPaymentMethod() {
-        return paymentMethod;
-    }
-
-    public void setPaymentMethod(String paymentMethod) {
-        this.paymentMethod = paymentMethod;
-    }
-
-    public String getPaymentStatus() {
-        return paymentStatus;
-    }
-
-    public void setPaymentStatus(String paymentStatus) {
-        this.paymentStatus = paymentStatus;
-    }
-
-    public double getWalletBalance() {
-        return walletBalance;
-    }
-
-    public void setWalletBalance(double walletBalance) {
-        this.walletBalance = walletBalance;
-    }
+    public static double getWalletBalance()             { return walletBalance; }
+    public static void setWalletBalance(double b)       { walletBalance = b; }
 }

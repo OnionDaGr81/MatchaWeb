@@ -5,79 +5,82 @@
 package matcha.model;
 
 /**
- *
+ * Menyimpan rincian tagihan dari sebuah booking, termasuk breakdown diskon.
  * Modul 4: Kalkulasi Tarif dan Transaksi
  */
 public class Invoice {
+
     private String invoiceId;
     private Booking relatedBooking;
-    private double totalAmount;
-    private double extraFee;
+    private double baseRate;       // Harga dasar layanan sebelum tambahan apapun
+    private double extraFee;       // Biaya tambahan, misal transport
+    private double discountAmount; // Total potongan diskon (dari provider + talent)
+    private double totalAmount;    // Harga final = baseRate + extraFee - discountAmount
 
-    public Invoice(String invoiceId, Booking relatedBooking, double totalAmount, double extraFee) {
+    public Invoice(String invoiceId, Booking relatedBooking,
+                   double baseRate, double extraFee, double discountAmount) {
         this.invoiceId = invoiceId;
         this.relatedBooking = relatedBooking;
-        this.totalAmount = totalAmount;
+        this.baseRate = baseRate;
         this.extraFee = extraFee;
+        this.discountAmount = discountAmount;
+        // Total dihitung otomatis saat invoice pertama kali dibuat
+        this.totalAmount = baseRate + extraFee - discountAmount;
     }
 
+    // Kembalikan total akhir yang harus dibayar client
     public double calculateTotal() {
-        // Hitung total biaya (baseRate dari Service + extraFee)
-        if (relatedBooking != null && relatedBooking.getBookedService() != null) {
-            double baseRate = relatedBooking.getBookedService().getRate();
-            totalAmount = baseRate + extraFee;
-        }
         return totalAmount;
     }
 
+    // Kembalikan rincian invoice lengkap untuk ditampilkan di struk
     public String getInvoiceDetails() {
-        // Kembalikan rincian tagihan dalam bentuk teks
         StringBuilder details = new StringBuilder();
         details.append("====== INVOICE DETAILS ======\n");
-        details.append("Invoice ID: ").append(invoiceId).append("\n");
+        details.append("Invoice ID : ").append(invoiceId).append("\n");
+
         if (relatedBooking != null) {
-            details.append("Booking ID: ").append(relatedBooking.getBookingId()).append("\n");
-            if (relatedBooking.getBookedService() != null) {
-                details.append("Service: ").append(relatedBooking.getBookedService().getServiceDetails()).append("\n");
-                details.append("Base Rate: Rp ").append(relatedBooking.getBookedService().getRate()).append("\n");
-            }
+            details.append("Booking ID : ").append(relatedBooking.getBookingId()).append("\n");
+            if (relatedBooking.getBookedService() != null)
+                details.append("Service    : ")
+                       .append(relatedBooking.getBookedService().getServiceDetails()).append("\n");
         }
-        details.append("Extra Fee: Rp ").append(extraFee).append("\n");
-        details.append("Total Amount: Rp ").append(calculateTotal()).append("\n");
-        details.append("============================\n");
+
+        details.append("-----------------------------\n");
+        details.append(String.format("Base Rate  : Rp %,.0f%n", baseRate));
+        details.append(String.format("Extra Fee  : Rp %,.0f%n", extraFee));
+
+        // Tampilkan baris diskon hanya jika ada potongan
+        if (discountAmount > 0)
+            details.append(String.format("Diskon     : -Rp %,.0f%n", discountAmount));
+
+        details.append("-----------------------------\n");
+        details.append(String.format("TOTAL      : Rp %,.0f%n", totalAmount));
+        details.append("=============================\n");
         return details.toString();
     }
 
-    // Getter dan Setter
-    public String getInvoiceId() {
-        return invoiceId;
+    // Method private untuk recalculate total setiap kali komponen harga diubah lewat setter
+    private void recalcTotal() {
+        this.totalAmount = this.baseRate + this.extraFee - this.discountAmount;
     }
 
-    public void setInvoiceId(String invoiceId) {
-        this.invoiceId = invoiceId;
-    }
+    // Getters & Setters
+    public String getInvoiceId()                         { return invoiceId; }
+    public void setInvoiceId(String invoiceId)           { this.invoiceId = invoiceId; }
 
-    public Booking getRelatedBooking() {
-        return relatedBooking;
-    }
+    public Booking getRelatedBooking()                   { return relatedBooking; }
+    public void setRelatedBooking(Booking b)             { this.relatedBooking = b; }
 
-    public void setRelatedBooking(Booking relatedBooking) {
-        this.relatedBooking = relatedBooking;
-    }
+    public double getBaseRate()                          { return baseRate; }
+    public void setBaseRate(double v)                    { this.baseRate = v; recalcTotal(); }
 
-    public double getTotalAmount() {
-        return totalAmount;
-    }
+    public double getExtraFee()                          { return extraFee; }
+    public void setExtraFee(double v)                    { this.extraFee = v; recalcTotal(); }
 
-    public void setTotalAmount(double totalAmount) {
-        this.totalAmount = totalAmount;
-    }
+    public double getDiscountAmount()                    { return discountAmount; }
+    public void setDiscountAmount(double v)              { this.discountAmount = v; recalcTotal(); }
 
-    public double getExtraFee() {
-        return extraFee;
-    }
-
-    public void setExtraFee(double extraFee) {
-        this.extraFee = extraFee;
-    }
+    public double getTotalAmount()                       { return totalAmount; }
+    public void setTotalAmount(double v)                 { this.totalAmount = v; }
 }
