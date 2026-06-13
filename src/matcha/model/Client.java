@@ -4,34 +4,72 @@
  */
 package matcha.model;
 
+import java.util.ArrayList;
+
 public class Client extends User {
 
-    private String alamat;
+    private static int counter = 1;
 
-    public Client() {
+    private ArrayList<Booking> bookingHistory =
+            new ArrayList<>();
+
+    public Client(String nama,
+                  String email,
+                  String password,
+                  String noTelp) {
+
+        super(
+                String.format(
+                        "CL%03d",
+                        counter++),
+                nama,
+                email,
+                password,
+                noTelp
+        );
     }
 
-    public Client(String id, String nama, String email,
-                  String password, String noTelp,
-                  String alamat) {
+@Override
+public boolean verifyIdentity() {
 
-        super(id, nama, email, password, noTelp);
-        this.alamat = alamat;
+    if (email == null || email.isEmpty()) {
+
+        System.out.println(
+                "Email tidak boleh kosong!");
+
+        return false;
     }
 
-    @Override
-    public boolean verifyIdentity() {
-        return email != null
-                && !email.isEmpty()
-                && noTelp != null
-                && !noTelp.isEmpty();
+    if (!email.endsWith("@gmail.com")) {
+
+        System.out.println(
+                "Email harus menggunakan @gmail.com");
+
+        return false;
     }
 
-    public String getAlamat() {
-        return alamat;
+    if (noTelp == null || noTelp.isEmpty()) {
+
+        System.out.println(
+                "Nomor telepon tidak boleh kosong!");
+
+        return false;
     }
 
-    public void setAlamat(String alamat) {
-        this.alamat = alamat;
+    return true;
+}
+    public void requestBooking(
+            Talent talent,
+            Service service) {
+
+        System.out.println(
+                "Booking berhasil dibuat.");
+    }
+
+    public void viewHistory() {
+
+        System.out.println(
+                "Jumlah booking : "
+                + bookingHistory.size());
     }
 }
