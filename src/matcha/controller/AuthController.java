@@ -9,34 +9,60 @@ import matcha.model.User;
 
 public class AuthController {
 
-    private ArrayList<User> daftarUser;
+    private ArrayList<User> daftarUser =
+            new ArrayList<>();
 
-    public AuthController() {
-        daftarUser = new ArrayList<>();
-    }
+    private User currentUser;
 
-    public void register(User user) {
+    public void register(
+            User user) {
+
+        if (isEmailRegistered(user.getEmail())) {
+
+            System.out.println(
+                    "Registrasi gagal: Email sudah terdaftar!");
+            return;
+        }
 
         if (user.verifyIdentity()) {
+
             daftarUser.add(user);
+
             System.out.println(
-                    "Registrasi berhasil: "
-                    + user.getNama());
+                    "Registrasi berhasil!");
         } else {
+
             System.out.println(
-                    "Registrasi gagal. Data tidak valid.");
+                    "Data tidak valid!");
         }
     }
 
-    public User login(String email, String password) {
+    public boolean isEmailRegistered(
+            String email) {
+
+        for (User user : daftarUser) {
+            if (user.getEmail().equalsIgnoreCase(email)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public User login(
+            String email,
+            String password) {
 
         for (User user : daftarUser) {
 
-            if (user.login(email, password)) {
+            if (user.login(
+                    email,
+                    password)) {
+
+                currentUser = user;
 
                 System.out.println(
-                        "Login berhasil. Selamat datang "
-                        + user.getNama());
+                        "Login berhasil!");
 
                 return user;
             }
@@ -48,14 +74,18 @@ public class AuthController {
         return null;
     }
 
-    public void logout(User user) {
+    public void logout() {
 
-        if (user != null) {
-            user.logout();
+        if (currentUser != null) {
+
+            currentUser.logout();
+
+            currentUser = null;
         }
     }
 
-    public ArrayList<User> getDaftarUser() {
-        return daftarUser;
+    public User getCurrentUser() {
+
+        return currentUser;
     }
 }
