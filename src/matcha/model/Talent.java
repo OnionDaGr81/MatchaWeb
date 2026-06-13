@@ -5,6 +5,7 @@
 package matcha.model;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class Talent extends User {
 
@@ -15,6 +16,8 @@ public class Talent extends User {
             new ArrayList<>();
 
     private boolean isAvailable;
+    private ArrayList<DiscountRule> discountRules = 
+            new ArrayList<>();
 
     public Talent(String nama,
                   String email,
@@ -79,5 +82,24 @@ public boolean verifyIdentity() {
             Schedule jadwal) {
 
         scheduleList.add(jadwal);
+    }
+
+     // Getter & setter Profile — dibutuhkan oleh CatalogController & PaymentController
+    public Profile getProfile() {
+        return profile;
+    }
+
+    public void setProfile(Profile p) {
+        this.profile = p;
+    }
+
+    // Getter discountRules — dibutuhkan oleh PaymentController.calculateDiscount()
+    public List<DiscountRule> getDiscountRules() {
+        return discountRules;
+    }
+
+    // Tambah satu rule diskon ke talent (misal: aktivitas favorit "memasak" → 10%)
+    public void addDiscountRule(DiscountRule rule) {
+        if (rule != null) discountRules.add(rule);
     }
 }
