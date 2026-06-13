@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package matcha.model;
 
 /**
@@ -14,11 +10,37 @@ public class Review {
     private String comment;
 
     public void submitReview(String komentar) {
-        // TODO: Simpan komentar jika validasi reviewer berhasil
+        if (validateReviewer()) {
+            this.comment = komentar;
+        }
     }
 
     public boolean validateReviewer() {
-        // TODO: Pastikan status bookingRef sudah 'Selesai' sebelum bisa mereview
-        return false;
+        return bookingRef != null
+                && Booking.STATUS_COMPLETED.equals(bookingRef.getStatus());
+    }
+
+    public String getReviewId() {
+        return reviewId;
+    }
+
+    public void setReviewId(String reviewId) {
+        this.reviewId = reviewId;
+    }
+
+    public Booking getBookingRef() {
+        return bookingRef;
+    }
+
+    public void setBookingRef(Booking bookingRef) {
+        this.bookingRef = bookingRef;
+    }
+
+    public String getComment() {
+        return comment;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
     }
 }

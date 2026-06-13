@@ -62,5 +62,12 @@ public class Profile {
     public ArrayList<Service> getOfferedServices() {
         return this.offeredServices;
     }
+    
+    public Rating getRating() {
+    if (this.reputasi == null) {
+        this.reputasi = new Rating();
+    }
+    return this.reputasi;
+}
 
 }

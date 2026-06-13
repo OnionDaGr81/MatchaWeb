@@ -1,13 +1,5 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package matcha.model;
 
-/**
- *
- * Modul 5: Ulasan dan Reputasi
- */
 import java.util.ArrayList;
 
 public class Rating {
@@ -15,11 +7,32 @@ public class Rating {
     private double averageScore;
 
     public void addScore(int score) {
-        // TODO: Masukkan nilai baru ke scoreList dan panggil calculateAverageRating()
+        scoreList.add(score);
+        calculateAverageRating();
     }
 
     public double calculateAverageRating() {
-        // TODO: Hitung rata-rata dari seluruh isi scoreList dan simpan di averageScore
-        return 0.0;
+        if (scoreList.isEmpty()) {
+            averageScore = 0.0;
+            return averageScore;
+        }
+        int total = 0;
+        for (int s : scoreList) {
+            total += s;
+        }
+        averageScore = (double) total / scoreList.size();
+        return averageScore;
+    }
+
+    public double getAverageScore() {
+        return averageScore;
+    }
+
+    public ArrayList<Integer> getScoreList() {
+        return scoreList;
+    }
+
+    public int getTotalReviews() {
+        return scoreList.size();
     }
 }
