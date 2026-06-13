@@ -16,6 +16,11 @@ public class Talent extends User {
             new ArrayList<>();
 
     private boolean isAvailable;
+
+    public Talent() {
+        super();
+    }
+    
     private ArrayList<DiscountRule> discountRules = 
             new ArrayList<>();
 
