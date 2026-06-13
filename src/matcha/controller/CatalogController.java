@@ -10,22 +10,20 @@ package matcha.controller;
  */
 import matcha.model.Talent;
 import matcha.model.Service;
+import matcha.util.DBUtil; // Pastikan import DBUtil-nya ada
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.util.ArrayList;
-import matcha.util.FileStorageUtil;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
 public class CatalogController {
-    private ArrayList<Talent> masterTalentList; // List semua talent yang ada di sistem
+    private ArrayList<Talent> masterTalentList;
 
     public CatalogController() {
-        // Load data talent dari file JSON menggunakan FileStorageUtil
-        this.masterTalentList = FileStorageUtil.readFromFile(
-            "data/talents.json", 
-            new TypeToken<ArrayList<Talent>>(){}.getType()
-        );
+        this.masterTalentList = getAllAvailableTalents();
         
-        // Jaga-jaga jika file JSON belum ada / kosong
+        // Jaga-jaga jika database kosong agar tidak terjadi NullPointerException
         if (this.masterTalentList == null) {
             this.masterTalentList = new ArrayList<>();
         }
@@ -33,12 +31,24 @@ public class CatalogController {
 
     public ArrayList<Talent> getAllAvailableTalents() {
         ArrayList<Talent> availableTalents = new ArrayList<>();
-        
-        for (Talent t : masterTalentList) {
-            // Asumsi di kelas Talent ada getter isAvailable()
-            if (t.isAvailable()) { 
+        // Query untuk mengambil semua data user yang rolenya TALENT
+        String query = "SELECT * FROM users WHERE role = 'TALENT'";
+
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                Talent t = new Talent(); 
+                t.setId(rs.getString("id"));
+                t.setNama(rs.getString("nama"));
+                t.setEmail(rs.getString("email"));
+                
+                // Masukkan data dari MySQL ke dalam list
                 availableTalents.add(t);
             }
+        } catch (Exception e) {
+            System.out.println("[CatalogController] Gagal mengambil data talent dari Database: " + e.getMessage());
         }
         return availableTalents;
     }
@@ -46,15 +56,14 @@ public class CatalogController {
     public ArrayList<Talent> searchTalentByService(String serviceName) {
         ArrayList<Talent> filteredTalents = new ArrayList<>();
         
+        // Logika pencariannya tetap sama seperti kodemu yang asli, 
+        // melakukan iterasi ke variabel masterTalentList
         for (Talent t : masterTalentList) {
-            // Asumsi di kelas Talent ada getter getProfile()
             if (t.getProfile() != null) {
-                // Looping layanan yang ada di dalam profil talent tersebut
                 for (Service s : t.getProfile().getOfferedServices()) {
-                    // Pakai equalsIgnoreCase agar pencarian tidak sensitif huruf besar/kecil
                     if (s.getServiceName().equalsIgnoreCase(serviceName)) {
                         filteredTalents.add(t);
-                        break; // Jika ketemu layanannya, langsung lanjut ke talent berikutnya
+                        break; 
                     }
                 }
             }
@@ -64,7 +73,6 @@ public class CatalogController {
 
     public void showTalentProfile(Talent talent) {
         if (talent != null && talent.getProfile() != null) {
-            // Memanggil method displayProfile() dari objek Profile milik Talent
             talent.getProfile().displayProfile();
         } else {
             System.out.println("Profil tidak ditemukan atau talent belum mengatur profil.");

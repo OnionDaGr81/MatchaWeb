@@ -1,6 +1,4 @@
-package matcha.controller;
-
-import matcha.model.DiscountRule;
+package matcha.model;
 
 import java.time.LocalDate;
 import java.util.ArrayList;

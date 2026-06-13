@@ -12,6 +12,9 @@ public abstract class User {
     protected String password;
     protected String noTelp;
 
+    public User() {
+    }
+
     public User(String id,
                 String nama,
                 String email,
@@ -25,21 +28,19 @@ public abstract class User {
         this.noTelp = noTelp;
     }
 
-    public boolean login(String email,
-                         String pass) {
-
+    public boolean login(String email, String pass) {
         return this.email.equals(email)
                 && this.password.equals(pass);
     }
 
     public void logout() {
-
         System.out.println(
                 nama + " berhasil logout.");
     }
 
     public abstract boolean verifyIdentity();
 
+// --- GETTER ---
     public String getId() {
         return id;
     }
@@ -60,7 +61,25 @@ public abstract class User {
         return password;
     }
 
+    // --- SETTER ---
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    // TAMBAHAN: Setter untuk id, nama, email, dan noTelp
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public void setNama(String nama) {
+        this.nama = nama;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setNoTelp(String noTelp) {
+        this.noTelp = noTelp;
     }
 }
