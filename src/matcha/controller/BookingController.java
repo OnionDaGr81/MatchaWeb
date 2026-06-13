@@ -41,7 +41,7 @@ public class BookingController {
                 // isOverlapping()  true jika dua interval saling tumpang-tindih
                 if (existingSchedule.isOverlapping(start, end)) {
                     throw new BookingConflictException(
-                        "[BookingController] Talent '" + talent.getName() +
+                        "[BookingController] Talent '" + talent.getNama() +
                         "' sudah dipesan pada rentang waktu yang dipilih. " +
                         "Booking yang konflik: " + existing.getBookingId()
                     );

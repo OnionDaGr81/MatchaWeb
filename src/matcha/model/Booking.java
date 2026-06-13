@@ -102,8 +102,8 @@ public class Booking {
     public String toString() {
         return String.format("Booking[id=%s, client=%s, talent=%s, status=%s, schedule=%s]",
             bookingId,
-            client.getName(),
-            talent.getName(),
+            client.getNama(),
+            talent.getNama(),
             status,
             bookingSchedule
         );
