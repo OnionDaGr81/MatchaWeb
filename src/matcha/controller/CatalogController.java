@@ -36,7 +36,7 @@ public class CatalogController {
         
         for (Talent t : masterTalentList) {
             // Asumsi di kelas Talent ada getter isAvailable()
-            if (t.istTersedia()) { 
+            if (t.isAvailable()) { 
                 availableTalents.add(t);
             }
         }

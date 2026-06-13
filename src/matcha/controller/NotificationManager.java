@@ -26,7 +26,7 @@ public class NotificationManager {
         notification.setTimestamp(LocalDateTime.now());
         
         // 3. Panggil method sendAlert() untuk menampilkan pesan ke user
-        notification.sendAlert();
+        notification.sendAlert(notification.getMessage());
     }
 
     public void onBookingStatusChanged(Booking booking) {

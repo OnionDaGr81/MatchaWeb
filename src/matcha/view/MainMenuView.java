@@ -58,7 +58,7 @@ public class MainMenuView {
         System.out.print("Masukkan Password: ");
         String password = scanner.nextLine();
 
-        boolean isSuccess = authController.login(email, password);
+        boolean isSuccess = authController.login(email, password) != null;
 
         if (isSuccess) {
             User loggedInUser = authController.getCurrentUser();
