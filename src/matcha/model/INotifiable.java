@@ -52,8 +52,8 @@ public class Notification implements INotifiable {
         String formattedTime = (timestamp != null) ? timestamp.format(formatter) : "N/A";
         
         System.out.println("========================================");
-        System.out.println("🔔 NOTIFIKASI BARU");
-        System.out.println("Kepada   : " + (recipient != null ? recipient.getName() : "Unknown"));
+        System.out.println(" NOTIFIKASI BARU");
+        System.out.println("Kepada   : " + (recipient != null ? recipient.getNama() : "Unknown"));
         System.out.println("Waktu    : " + formattedTime);
         System.out.println("Pesan    : " + message);
         System.out.println("========================================");

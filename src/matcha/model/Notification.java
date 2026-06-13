@@ -33,7 +33,7 @@ public class Notification implements INotifiable {
     @Override
     public void sendAlert(String message) {
         // Cetak pesan notifikasi ke layar/sistem untuk recipient terkait
-        String recipientName = (recipient != null) ? recipient.getName() : "Pengguna Tidak Dikenal";
+        String recipientName = (recipient != null) ? recipient.getNama() : "Pengguna Tidak Dikenal";
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
         String timeStr = (timestamp != null) ? timestamp.format(formatter) : LocalDateTime.now().format(formatter);
 
