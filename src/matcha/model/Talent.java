@@ -5,93 +5,79 @@
 package matcha.model;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-//Bagian diskon untuk Talent, yang bisa berupa diskon berdasarkan aktivitas favorit mereka
-public class Talent {
-    private String talentId;
-    private String name;
-    private Profile profile;
-
-    // Daftar aturan diskon personal milik talent berdasarkan aktivitas favoritnya
-    private List<DiscountRule> discountRules = new ArrayList<>();
-
-    public Talent(String talentId, String name, Profile profile) {
-        this.talentId = talentId;
-        this.name = name;
-        this.profile = profile;
-    }
-
-    // Talent menambahkan aturan diskon untuk aktivitas yang dia sukai
-    public void addDiscountRule(DiscountRule rule) {
-        if (rule != null) {
-            this.discountRules.add(rule);
-        }
-    }
-
-    // Kembalikan salinan list agar tidak bisa dimodifikasi dari luar (enkapsulasi)
-    public List<DiscountRule> getDiscountRules() {
-        return Collections.unmodifiableList(discountRules);
-    }
-
-    public String getTalentId()             { return talentId; }
-    public void setTalentId(String id)      { this.talentId = id; }
-    public String getName()                 { return name; }
-    public void setName(String name)        { this.name = name; }
-    public Profile getProfile()             { return profile; }
-    public void setProfile(Profile p)       { this.profile = p; }
-}
 
 public class Talent extends User {
 
-    private String kategori;
-    private double tarifPerJam;
-    private boolean tersedia;
+    private static int counter = 1;
 
-    public Talent() {
+    private Profile profile;
+    private ArrayList<Schedule> scheduleList =
+            new ArrayList<>();
+
+    private boolean isAvailable;
+
+    public Talent(String nama,
+                  String email,
+                  String password,
+                  String noTelp) {
+
+        super(
+                String.format(
+                        "TL%03d",
+                        counter++),
+                nama,
+                email,
+                password,
+                noTelp
+        );
     }
 
-    public Talent(String id, String nama, String email,
-                  String password, String noTelp,
-                  String kategori, double tarifPerJam,
-                  boolean tersedia) {
+@Override
+public boolean verifyIdentity() {
 
-        super(id, nama, email, password, noTelp);
-        this.kategori = kategori;
-        this.tarifPerJam = tarifPerJam;
-        this.tersedia = tersedia;
+    if (email == null || email.isEmpty()) {
+
+        System.out.println(
+                "Email tidak boleh kosong!");
+
+        return false;
     }
 
-    @Override
-    public boolean verifyIdentity() {
-        return email != null
-                && !email.isEmpty()
-                && noTelp != null
-                && !noTelp.isEmpty();
+    if (!email.endsWith("@gmail.com")) {
+
+        System.out.println(
+                "Email harus menggunakan @gmail.com");
+
+        return false;
     }
 
-    public String getKategori() {
-        return kategori;
+    if (noTelp == null || noTelp.isEmpty()) {
+
+        System.out.println(
+                "Nomor telepon tidak boleh kosong!");
+
+        return false;
     }
 
-    public void setKategori(String kategori) {
-        this.kategori = kategori;
+    return true;
+}
+    public void toggleAvailability() {
+
+        isAvailable = !isAvailable;
+
+        System.out.println(
+                "Status tersedia : "
+                + isAvailable);
     }
 
-    public double getTarifPerJam() {
-        return tarifPerJam;
+    public boolean isAvailable() {
+
+        return isAvailable;
     }
 
-    public void setTarifPerJam(double tarifPerJam) {
-        this.tarifPerJam = tarifPerJam;
-    }
+    public void addSchedule(
+            Schedule jadwal) {
 
-    public boolean isTersedia() {
-        return tersedia;
-    }
-
-    public void setTersedia(boolean tersedia) {
-        this.tersedia = tersedia;
+        scheduleList.add(jadwal);
     }
 }
