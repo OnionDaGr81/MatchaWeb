@@ -2,66 +2,28 @@ package matcha.Main;
 
 import io.javalin.Javalin;
 import matcha.controller.AuthController;
-import matcha.controller.CatalogController;
 
 public class MatchaApp {
     public static void main(String[] args) {
+        // 1. Nyalakan Server & Aktifkan CORS
         Javalin app = Javalin.create(config -> {
             config.bundledPlugins.enableCors(cors -> {
                 cors.addRule(it -> it.anyHost());
             });
         }).start(7070);
 
-        // Tambahkan baris ini agar root URL ada isinya
-        app.get("/", ctx -> ctx.result("Selamat datang di Matcha API Server!"));
+        System.out.println("Server Matcha API Berjalan di http://localhost:7070");
 
-        //  INISIALISASI CONTROLLER 
-        CatalogController catalogController = new CatalogController();
-        AuthController authController = new AuthController(); // Pindah ke sini
-
-        // ENDPOINT CATALOG 
-        app.get("/api/talents", ctx -> {
-            ctx.json(catalogController.getAllAvailableTalents());
-        });
-
-        app.get("/api/talents/search", ctx -> {
-            String serviceName = ctx.queryParam("service");
-            if (serviceName != null) {
-                ctx.json(catalogController.searchTalentByService(serviceName));
-            } else {
-                ctx.status(400).json("{\"error\": \"Parameter service tidak boleh kosong\"}");
-            }
-        });
-
-        app.get("/api/talents/{id}", ctx -> {
-            String talentId = ctx.pathParam("id");
-            matcha.model.Talent foundTalent = catalogController.getTalentById(talentId);
-            
-            if (foundTalent != null) {
-                ctx.json(foundTalent);
-            } else {
-                ctx.status(404).json("{\"error\": \"Talent tidak ditemukan\"}");
-            }
-        });
-
-        //  ENDPOINT AUTH (LOGIN) 
-        app.post("/api/auth/login", ctx -> {
-            LoginRequest req = ctx.bodyAsClass(LoginRequest.class);
+        // 2. Daftarkan Endpoint sesuai permintaan UI HTML
+        // Saat UI memanggil /login, Javalin akan menjalankan AuthController.login
+        app.post("/login", AuthController::login);
+        app.post("/register", AuthController::register);
         
-            matcha.model.User loggedInUser = authController.login(req.email, req.password);
-            
-            if (loggedInUser != null) {
-                ctx.status(200).json(loggedInUser);
-            } else {
-                ctx.status(401).json("{\"error\": \"Email atau password salah.\"}");
-            }
-        });
-
-    } 
-
-}
-
-class LoginRequest {
-    public String email;
-    public String password;
+        // (Nanti kita akan tambahkan /talents dan /bookings di sini)
+        // Endpoint untuk mengecek status server (agar spanduk kuning hilang)
+        app.get("/health", ctx -> ctx.status(200).result("OK"));
+        
+        // Endpoint untuk mengambil daftar talent dari database
+        app.get("/talents", matcha.controller.CatalogController::getAllTalents);
+    }
 }

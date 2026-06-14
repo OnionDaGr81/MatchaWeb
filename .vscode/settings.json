@@ -1,6 +1,7 @@
 {
     "java.project.sourcePaths": [
-        "src"
+        "src",
+        "matchaweb/src/main/java/matcha/Main"
     ],
     "java.project.referencedLibraries": {
         "include": [
