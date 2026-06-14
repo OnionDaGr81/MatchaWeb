@@ -39,20 +39,35 @@ CREATE TABLE IF NOT EXISTS `bookings` (
 
 -- Dumping data for table matcha_db.bookings: ~0 rows (approximately)
 
+-- Dumping structure for table matcha_db.profiles
+CREATE TABLE IF NOT EXISTS `profiles` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `talent_id` varchar(50) NOT NULL,
+  `bio` text DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `talent_id` (`talent_id`),
+  CONSTRAINT `1` FOREIGN KEY (`talent_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+
+-- Dumping data for table matcha_db.profiles: ~0 rows (approximately)
+
 -- Dumping structure for table matcha_db.services
 CREATE TABLE IF NOT EXISTS `services` (
   `id` varchar(50) NOT NULL,
+  `talent_id` varchar(50) NOT NULL,
   `nama_layanan` varchar(100) NOT NULL,
-  `tarif_dasar` decimal(10,2) NOT NULL,
+  `tarif_dasar` double NOT NULL,
   `deskripsi` text DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `talent_id` (`talent_id`),
+  CONSTRAINT `1` FOREIGN KEY (`talent_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
 -- Dumping data for table matcha_db.services: ~3 rows (approximately)
-INSERT INTO `services` (`id`, `nama_layanan`, `tarif_dasar`, `deskripsi`) VALUES
-	('SRV001', 'Teman Mabar Game', 50000.00, 'Mabar game online rank up'),
-	('SRV002', 'Teman Nonton Bioskop', 150000.00, 'Nemenin nonton film di bioskop (termasuk tiket)'),
-	('SRV003', 'Teman Curhat Online', 30000.00, 'Dengerin curhat via Discord / Telpon');
+INSERT INTO `services` (`id`, `talent_id`, `nama_layanan`, `tarif_dasar`, `deskripsi`) VALUES
+	('SRV001', 'TL001', 'Teman Mabar Game', 50000, 'Mabar game online rank up'),
+	('SRV002', 'TL002', 'Teman Nonton Bioskop', 150000, 'Nemenin nonton film di bioskop'),
+	('SRV003', 'TL001', 'Teman Curhat Online', 30000, 'Dengerin curhat via Discord / Telpon');
 
 -- Dumping structure for table matcha_db.users
 CREATE TABLE IF NOT EXISTS `users` (
