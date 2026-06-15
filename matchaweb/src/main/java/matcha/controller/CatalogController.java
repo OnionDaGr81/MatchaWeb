@@ -83,4 +83,16 @@ public class CatalogController {
             ctx.status(500).json(Map.of("error", "Terjadi kesalahan server: " + e.getMessage()));
         }
     }
+    public static void getTalentById(io.javalin.http.Context ctx) {
+        String talentId = ctx.pathParam("talentId");
+        
+        java.util.Map<String, Object> talent = new java.util.HashMap<>();
+        talent.put("id", talentId);
+        talent.put("nama", "Kaizone");
+        talent.put("email", "Kaizone@gmail.com");
+        talent.put("tarifPerJam", 150000);
+        talent.put("hariTersedia", "Senin, Rabu, Jumat, Sabtu");
+        
+        ctx.json(talent);
+    }
 }
