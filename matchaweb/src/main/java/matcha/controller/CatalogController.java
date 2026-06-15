@@ -2,6 +2,10 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
 package matcha.controller;
 
 import io.javalin.http.Context;
@@ -83,16 +87,31 @@ public class CatalogController {
             ctx.status(500).json(Map.of("error", "Terjadi kesalahan server: " + e.getMessage()));
         }
     }
-    public static void getTalentById(io.javalin.http.Context ctx) {
+ public static void getTalentById(Context ctx) {
         String talentId = ctx.pathParam("talentId");
         
-        java.util.Map<String, Object> talent = new java.util.HashMap<>();
-        talent.put("id", talentId);
-        talent.put("nama", "Kaizone");
-        talent.put("email", "Kaizone@gmail.com");
-        talent.put("tarifPerJam", 150000);
-        talent.put("hariTersedia", "Senin, Rabu, Jumat, Sabtu");
-        
-        ctx.json(talent);
+        try {
+            Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASS);
+            
+            // Mengambil nama dan email ASLI dari database berdasarkan talentId
+            PreparedStatement stmt = conn.prepareStatement("SELECT * FROM users WHERE id = ? AND role = 'TALENT'");
+            stmt.setString(1, talentId);
+            ResultSet rs = stmt.executeQuery();
+            
+            if (rs.next()) {
+                Map<String, Object> talent = new HashMap<>();
+                talent.put("id", rs.getString("id"));
+                // Menggunakan data dari database
+                talent.put("nama", rs.getString("nama")); 
+                talent.put("email", rs.getString("email"));
+                
+                // ... (sisanya ambil layanan dari tabel services) ...
+                
+                ctx.status(200).json(talent);
+            }
+            // ... tutup koneksi ...
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
