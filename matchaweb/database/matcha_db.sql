@@ -76,6 +76,8 @@ CREATE TABLE IF NOT EXISTS `bookings` (
   CONSTRAINT `fk_bookings_service` FOREIGN KEY (`service_id`) REFERENCES `services` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
+ALTER TABLE bookings ADD COLUMN catatan TEXT DEFAULT NULL;
+
 -- Dumping structure for table matcha_db.invoices
 CREATE TABLE IF NOT EXISTS `invoices` (
   `id` varchar(50) NOT NULL,
