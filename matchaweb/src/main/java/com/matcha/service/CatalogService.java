@@ -24,4 +24,11 @@ public class CatalogService {
         }
         return catalogRepository.getServicesByTalentId(talentId);
     }
+
+    public ServiceItem getServiceById(String serviceId) throws Exception {
+        if (serviceId == null || serviceId.isEmpty()) {
+            throw new Exception("ID Layanan tidak valid.");
+        }
+        return catalogRepository.getServiceById(serviceId);
+    }
 }

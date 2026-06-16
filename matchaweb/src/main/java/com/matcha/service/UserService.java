@@ -15,4 +15,14 @@ public class UserService {
         // Bisa tambahkan validasi sebelum melempar ke repository jika perlu
         return userRepository.getAllUsers();
     }
+
+    public User getUserById(String userId) {
+        // Validasi input
+        if (userId == null || userId.isEmpty()) {
+            throw new IllegalArgumentException("User ID tidak boleh kosong");
+        }
+        return userRepository.getUserById(userId);
+    }
+
+    
 }

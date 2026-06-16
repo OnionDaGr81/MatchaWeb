@@ -19,4 +19,20 @@ public class UserController {
         String userId = ctx.pathParam("userId");
         ctx.json(userService.getUserById(userId));
     }
+
+    public void updateUser(Context ctx) {
+        String userId = ctx.pathParam("userId");
+        // Di sini kita bisa parsing body JSON untuk mendapatkan data update
+        // Misalnya, kita bisa menggunakan ctx.bodyAsClass(User.class) untuk mendapatkan objek User dari JSON
+        // Kemudian kita bisa memanggil userService.updateUser(userId, updatedUser);
+        // Tapi untuk sekarang, kita hanya akan mengembalikan pesan sederhana
+        ctx.result("Update user dengan ID: " + userId);
+    }
+
+    public void deleteUser(Context ctx) {
+        String userId = ctx.pathParam("userId");
+        // Di sini kita bisa memanggil userService.deleteUser(userId);
+        // Tapi untuk sekarang, kita hanya akan mengembalikan pesan sederhana
+        ctx.result("Delete user dengan ID: " + userId);
+    }
 }

@@ -77,4 +77,29 @@ public class CatalogRepository {
         }
         return services;
     }
+
+    // 3. Mengambil detail layanan berdasarkan ID Layanan
+    public ServiceItem getServiceById(String serviceId) {
+        ServiceItem service = null;
+        String sql = "SELECT * FROM services WHERE id = ?";
+
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, serviceId);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                service = new ServiceItem();
+                service.setId(rs.getString("id"));
+                service.setTalentId(rs.getString("talent_id"));
+                service.setNamaLayanan(rs.getString("nama_layanan"));
+                service.setTarifDasar(rs.getDouble("tarif_dasar"));
+                service.setDeskripsi(rs.getString("deskripsi"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return service;
+    }
 }

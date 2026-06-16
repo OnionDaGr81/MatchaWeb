@@ -2,11 +2,10 @@ package com.matcha.controller;
 
 import com.matcha.service.CatalogService; 
 import io.javalin.http.Context;
-import main.java.com.matcha.model.ServiceItem;
+import com.matcha.model.ServiceItem;
 
 import java.util.Map;
 import java.util.List;
-import java.util.ArrayList;
 
 public class CatalogController {
 
@@ -21,16 +20,15 @@ public class CatalogController {
     public void getAllTalents(Context ctx) {
         try {
             // (Opsional) Mengambil query parameter jika user melakukan pencarian
-            // Contoh URL: /api/talents?search=gaming
             String keyword = ctx.queryParam("search");
 
-            // Memanggil service untuk mengambil daftar talent
+            // Memanggil service dan menyimpan di variabel 'talents'
             List<Map<String, Object>> talents = catalogService.getTalentCatalog(keyword);
 
             ctx.status(200).json(Map.of(
                 "status", "success",
                 "message", "Berhasil mengambil daftar talent",
-                "data", mockTalents
+                "data", talents // Panggil variabel 'talents' yang asli, bukan mockTalents
             ));
 
         } catch (Exception e) {
@@ -48,12 +46,13 @@ public class CatalogController {
             // Menangkap parameter {talentId} yang ada di URL path
             String talentId = ctx.pathParam("talentId");
 
+            // Memanggil service dan menyimpan di variabel 'services'
             List<ServiceItem> services = catalogService.getTalentServices(talentId);
     
             ctx.status(200).json(Map.of(
                 "status", "success",
                 "message", "Berhasil mengambil katalog layanan",
-                "data", mockServices
+                "data", services // Panggil variabel 'services' yang asli, bukan mockServices
             ));
 
         } catch (Exception e) {
@@ -63,4 +62,32 @@ public class CatalogController {
             ));
         }
     }
+
+    // --- ENDPOINT 3: getServiceById  ---
+    // Akan merespons request GET ke /api/services/{serviceId}
+    public void getServiceById(Context ctx) {
+        try {
+            // Menangkap parameter {serviceId} yang ada di URL path
+            String serviceId = ctx.pathParam("serviceId");
+            // Memanggil service dan menyimpan di variabel 'service'
+            ServiceItem service = catalogService.getServiceById(serviceId);
+            if (service != null) {
+                ctx.status(200).json(Map.of(
+                    "status", "success",
+                    "message", "Berhasil mengambil detail layanan",
+                    "data", service // Panggil variabel 'service' yang asli, bukan mockService
+                ));
+            } else {
+                ctx.status(404).json(Map.of(
+                    "status", "error",
+                    "message", "Layanan tidak ditemukan."
+                ));
+            }
+        } catch (Exception e) {
+            ctx.status(500).json(Map.of(
+                "status", "error",
+                "message", "Gagal mengambil detail layanan."
+            ));
+        }}
+    
 }
