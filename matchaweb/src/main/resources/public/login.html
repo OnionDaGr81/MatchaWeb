@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matcha - Masuk / Daftar</title>
+    <link rel="stylesheet" href="/css/global.css">
+    <style>
+        body { 
+            display: flex; 
+            flex-direction: column;
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+        }
+        
+        .auth-container {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: var(--spacing-2xl);
+            width: 100%;
+            max-width: 420px;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+        }
+
+        .auth-header { text-align: center; margin-bottom: 30px; }
+        .auth-header h2 { color: var(--primary); font-weight: 600; font-size: 28px; margin-bottom: 5px; }
+        .auth-header p { color: var(--text-secondary); font-size: 14px; margin-bottom: 0; }
+        
+        /* Toggle Button */
+        .toggle-box { display: flex; margin-bottom: 25px; border-radius: var(--radius-lg); background: var(--bg-input); overflow: hidden; padding: var(--spacing-xs); border: 1px solid var(--border); }
+        .toggle-btn { flex: 1; padding: 10px; text-align: center; cursor: pointer; color: var(--text-secondary); font-weight: 500; transition: 0.2s; border-radius: var(--radius-md); font-size: 14px; }
+        .toggle-btn.active { background-color: var(--primary); color: #fff; box-shadow: var(--shadow-sm); }
+
+        
+
+        .theme-toggle-corner {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <button class="theme-switch-btn" style="position: absolute; top: 20px; right: 20px;" onclick="toggleTheme()" title="Ganti Tema"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" style="vertical-align: text-bottom;"><path d="M12 3a9 9 0 109 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 01-4.4 2.26 5.403 5.403 0 01-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"/></svg></button>
+
+    <div class="auth-container animate-in">
+        <div class="auth-header">
+            <h2><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" style="vertical-align: text-bottom;"><path d="M2 21h18v-2H2M20 8h-2V5c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v10c0 2.21 1.79 4 4 4h6c2.21 0 4-1.79 4-4v-3h2c1.11 0 2-.89 2-2v-5c0-1.11-.89-2-2-2zm-4 7c0 1.1-.9 2-2 2H6c-1.1 0-2-.9-2-2V5h10v10zm4-4h-2V7h2v4z"/></svg> Matcha</h2>
+            <p>Portal Pendamping Premium</p>
+        </div>
+
+        <div class="toggle-box">
+            <div class="toggle-btn active" id="btn-login" onclick="switchForm('login')">Masuk</div>
+            <div class="toggle-btn" id="btn-register" onclick="switchForm('register')">Daftar</div>
+        </div>
+
+        <div id="alert-box" class="alert"></div>
+
+        <form id="login-form" onsubmit="handleLogin(event)">
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="login-email" required placeholder="email@contoh.com">
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="login-password" required placeholder="••••••••">
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Masuk ke Akun</button>
+            <p class="text-center mt-md"><a href="/" style="font-size: 13px;">Kembali ke Beranda</a></p>
+        </form>
+
+        <form id="register-form" onsubmit="handleRegister(event)" style="display: none;">
+            <div class="form-group">
+                <label>Nama Lengkap</label>
+                <input type="text" id="reg-nama" required placeholder="Contoh: Didit Lemon Tea">
+            </div>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="reg-email" required placeholder="email@contoh.com">
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="reg-password" required placeholder="Minimal 6 karakter">
+            </div>
+            <div class="form-group">
+                <label>Nomor Telepon</label>
+                <input type="text" id="reg-notelp" required placeholder="0812xxxxxx">
+            </div>
+            <div class="form-group">
+                <label>Daftar Sebagai</label>
+                <select id="reg-role">
+                    <option value="client">Klien (Penyewa)</option>
+                    <option value="talent">Talent (Pendamping)</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Buat Akun Baru</button>
+            <p class="text-center mt-md"><a href="/" style="font-size: 13px;">Kembali ke Beranda</a></p>
+        </form>
+    </div>
+
+    <script>
+        // Theme Logic
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('matcha_theme', newTheme);
+        }
+        document.documentElement.setAttribute('data-theme', localStorage.getItem('matcha_theme') || 'dark');
+    </script>
+    <script src="/js/services/api.js"></script>
+    <script src="/js/utils/helpers.js"></script>
+    <script src="/js/pages/login.js"></script>
+</body>
+</html>

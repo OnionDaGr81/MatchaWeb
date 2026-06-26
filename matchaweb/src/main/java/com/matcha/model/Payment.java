@@ -15,9 +15,10 @@ public class Payment implements IPayable {
 
     @Override
     public void generateReceipt() {
-        // Implementasi kosong: Struk dirender di frontend (HTML/JS) menggunakan data JSON
+        // Implementasi kosong: Struk dirender di frontend (HTML/JS) menggunakan JSON
     }
 
+    // --- Getter & Setter ---
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
 

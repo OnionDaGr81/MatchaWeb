@@ -13,37 +13,51 @@ public class CatalogRepository {
     // 1. Mengambil daftar Talent (menggabungkan tabel users dan profiles)
     public List<Map<String, Object>> getAllTalentsWithProfile(String keyword) {
         List<Map<String, Object>> talents = new ArrayList<>();
-        
-        // Gunakan LEFT JOIN agar talent yang belum punya profil tetap terbaca
+
         StringBuilder sql = new StringBuilder(
-            "SELECT u.id, u.nama, p.bio " +
+            "SELECT u.id, u.nama, u.role, u.profile_photo, p.bio, " +
+            "(SELECT MIN(tarif_dasar) FROM services s WHERE s.talent_id = u.id) as pricePerHour, " +
+            "(SELECT AVG(r.score) FROM reviews r JOIN bookings b ON r.booking_id = b.id WHERE b.talent_id = u.id) as rating, " +
+            "(SELECT COUNT(r.id) FROM reviews r JOIN bookings b ON r.booking_id = b.id WHERE b.talent_id = u.id) as reviewCount " +
             "FROM users u " +
             "LEFT JOIN profiles p ON u.id = p.talent_id " +
             "WHERE u.role = 'talent'"
         );
 
-        // Jika ada pencarian keyword (Filter)
         boolean hasKeyword = (keyword != null && !keyword.trim().isEmpty());
         if (hasKeyword) {
-            sql.append(" AND (u.nama LIKE ? OR p.bio LIKE ?)");
+            sql.append(" AND (u.nama LIKE ? OR p.bio LIKE ? OR EXISTS (SELECT 1 FROM services s2 WHERE s2.talent_id = u.id AND (s2.nama_layanan LIKE ? OR s2.deskripsi LIKE ?)))");
         }
 
         try (Connection conn = DBUtil.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql.toString())) {
-            
+
             if (hasKeyword) {
                 String searchPattern = "%" + keyword + "%";
                 stmt.setString(1, searchPattern);
                 stmt.setString(2, searchPattern);
+                stmt.setString(3, searchPattern);
+                stmt.setString(4, searchPattern);
             }
 
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
-                // Menggunakan Map (Data Transfer Object dinamis) untuk dikirim jadi JSON
                 Map<String, Object> talent = new HashMap<>();
                 talent.put("id", rs.getString("id"));
                 talent.put("nama", rs.getString("nama"));
                 talent.put("bio", rs.getString("bio") != null ? rs.getString("bio") : "Belum ada bio.");
+                talent.put("role", rs.getString("role"));
+                talent.put("profilePhoto", rs.getString("profile_photo"));
+                
+                double price = rs.getDouble("pricePerHour");
+                talent.put("pricePerHour", rs.wasNull() ? 0 : price);
+
+                double rating = rs.getDouble("rating");
+                talent.put("rating", rs.wasNull() ? 0 : rating);
+
+                int reviewCount = rs.getInt("reviewCount");
+                talent.put("reviewCount", rs.wasNull() ? 0 : reviewCount);
+                
                 talents.add(talent);
             }
         } catch (SQLException e) {
@@ -52,25 +66,17 @@ public class CatalogRepository {
         return talents;
     }
 
-    // 2. Mengambil Layanan (Services) berdasarkan ID Talent
+    // 2. Mengambil Layanan berdasarkan ID Talent
     public List<ServiceItem> getServicesByTalentId(String talentId) {
         List<ServiceItem> services = new ArrayList<>();
         String sql = "SELECT * FROM services WHERE talent_id = ?";
 
         try (Connection conn = DBUtil.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-            
             stmt.setString(1, talentId);
             ResultSet rs = stmt.executeQuery();
-            
             while (rs.next()) {
-                ServiceItem item = new ServiceItem();
-                item.setId(rs.getString("id"));
-                item.setTalentId(rs.getString("talent_id"));
-                item.setNamaLayanan(rs.getString("nama_layanan"));
-                item.setTarifDasar(rs.getDouble("tarif_dasar"));
-                item.setDeskripsi(rs.getString("deskripsi"));
-                services.add(item);
+                services.add(mapServiceRow(rs));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -80,26 +86,44 @@ public class CatalogRepository {
 
     // 3. Mengambil detail layanan berdasarkan ID Layanan
     public ServiceItem getServiceById(String serviceId) {
-        ServiceItem service = null;
         String sql = "SELECT * FROM services WHERE id = ?";
-
         try (Connection conn = DBUtil.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-
             stmt.setString(1, serviceId);
             ResultSet rs = stmt.executeQuery();
-
             if (rs.next()) {
-                service = new ServiceItem();
-                service.setId(rs.getString("id"));
-                service.setTalentId(rs.getString("talent_id"));
-                service.setNamaLayanan(rs.getString("nama_layanan"));
-                service.setTarifDasar(rs.getDouble("tarif_dasar"));
-                service.setDeskripsi(rs.getString("deskripsi"));
+                return mapServiceRow(rs);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return service;
+        return null;
+    }
+
+    // 4. Mengambil semua layanan
+    public List<ServiceItem> getAllServices() {
+        List<ServiceItem> services = new ArrayList<>();
+        String sql = "SELECT * FROM services";
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                services.add(mapServiceRow(rs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return services;
+    }
+
+    // Helper: mapping ResultSet ke ServiceItem
+    private ServiceItem mapServiceRow(ResultSet rs) throws SQLException {
+        ServiceItem item = new ServiceItem();
+        item.setId(rs.getString("id"));
+        item.setTalentId(rs.getString("talent_id"));
+        item.setNamaLayanan(rs.getString("nama_layanan"));
+        item.setTarifDasar(rs.getDouble("tarif_dasar"));
+        item.setDeskripsi(rs.getString("deskripsi"));
+        return item;
     }
 }

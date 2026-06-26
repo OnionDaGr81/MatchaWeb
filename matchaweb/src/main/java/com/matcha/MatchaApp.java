@@ -4,60 +4,193 @@ import com.matcha.controller.AuthController;
 import com.matcha.controller.UserController;
 import com.matcha.controller.CatalogController;
 import com.matcha.controller.BookingController;
+import com.matcha.controller.PaymentController;
+import com.matcha.controller.ReviewController;
+import com.matcha.controller.NotificationController;
 
 import io.javalin.Javalin;
-import io.javalin.http.staticfiles.Location;
-import static io.javalin.apibuilder.ApiBuilder.*; // untuk path(), get(), post()
+import static io.javalin.apibuilder.ApiBuilder.*;
+import java.io.InputStream;
+import java.util.Map;
+import com.matcha.util.DBUtil;
+import java.sql.Connection;
+import java.sql.Statement;
 
 public class MatchaApp {
     public static void main(String[] args) {
-        // Inisialisasi semua Controller
-        AuthController authController = new AuthController();
-        UserController userController = new UserController();
-        CatalogController catalogController = new CatalogController();
-        BookingController bookingController = new BookingController();
+        migrateDatabase();
+
+        AuthController authController          = new AuthController();
+        UserController userController          = new UserController();
+        CatalogController catalogController    = new CatalogController();
+        BookingController bookingController    = new BookingController();
+        PaymentController paymentController    = new PaymentController();
+        ReviewController reviewController      = new ReviewController();
+        NotificationController notifController = new NotificationController();
 
         Javalin app = Javalin.create(config -> {
-            // Setup file statis
-            config.staticFiles.add("/public", Location.CLASSPATH); 
-            
-            // Setup Routing (Cara Baru Javalin 6)
+            config.http.maxRequestSize = 10_000_000L; // Naikkan limit ke 10MB untuk upload gambar Base64
             config.router.apiBuilder(() -> {
                 path("api", () -> {
-                    
-                    // --- Modul 1: Auth ---
+
+                    // --- Auth ---
                     path("auth", () -> {
                         post("register", ctx -> authController.register(ctx));
-                        post("login", ctx -> authController.login(ctx));
-                    });
-                    
-                    // --- Modul Pengguna ---
-                    path("users", () -> {
-                        get(ctx -> userController.fetchAllUsers(ctx));
-                        get("{userId}", ctx -> userController.getUserById(ctx));
-                        put("{userId}", ctx -> userController.updateUser(ctx));
-                        delete("{userId}", ctx -> userController.deleteUser(ctx));
+                        post("login",    ctx -> authController.login(ctx));
                     });
 
-                    // --- Modul 2: Catalog (Talent & Services) ---
+                    // --- Users ---
+                    path("users", () -> {
+                        get(ctx -> userController.fetchAllUsers(ctx));
+                        get("{userId}",               ctx -> userController.getUserById(ctx));
+                        put("{userId}",               ctx -> userController.updateUser(ctx));
+                        delete("{userId}",            ctx -> userController.deleteUser(ctx));
+                        get("{userId}/notifications", ctx -> notifController.getUserNotifications(ctx));
+                    });
+
+                    // --- Catalog ---
                     path("talents", () -> {
                         get(ctx -> catalogController.getAllTalents(ctx));
+                        get("{talentId}", ctx -> catalogController.getTalentById(ctx));
                         get("{talentId}/services", ctx -> catalogController.getTalentServices(ctx));
+                        get("{talentId}/reviews",  ctx -> reviewController.getTalentReviews(ctx));
                     });
-                    
+
                     path("services", () -> {
+                        get(ctx -> catalogController.getAllServices(ctx));
                         get("{serviceId}", ctx -> catalogController.getServiceById(ctx));
                     });
 
-                    // --- Modul 3: Bookings ---
+                    // --- Bookings ---
                     path("bookings", () -> {
-                        post(ctx -> bookingController.createBooking(ctx)); 
+                        post(ctx -> bookingController.createBooking(ctx));
+                        get(ctx -> bookingController.getBookingHistory(ctx));
+                        get("{bookingId}", ctx -> bookingController.getBookingById(ctx));
+                        put("{bookingId}/status", ctx -> bookingController.updateBookingStatus(ctx));
                     });
-                    
+
+                    // --- Payments ---
+                    path("payments", () -> {
+                        get(ctx -> paymentController.getPaymentByBookingId(ctx));
+                        post("invoice", ctx -> paymentController.createInvoice(ctx));
+                        post("pay",     ctx -> paymentController.payInvoice(ctx));
+                    });
+
+                    // --- Reviews ---
+                    path("reviews", () -> {
+                        post(ctx -> reviewController.createReview(ctx));
+                        get("client/{clientId}", ctx -> reviewController.getClientReviews(ctx));
+                    });
+
+                    // --- Notifications ---
+                    path("notifications", () -> {
+                        post(ctx -> notifController.createNotification(ctx));
+                        put("{notificationId}/read", ctx -> notifController.markAsRead(ctx));
+                    });
                 });
             });
-        }).start(7070); // Jalan di localhost:7070
+        });
 
-        System.out.println("Server Matcha berjalan di http://localhost:7070");
+        // === SERVE STATIC HTML FILES MANUAL (kompatibel dengan fat-JAR) ===
+        String[] pages = {"index", "login", "app", "catalog", "dashboard-client", "dashboard-talent",
+                          "booking-confirmation", "my-bookings", "notifications",
+                          "payment", "profile", "review", "reviews-list"};
+
+        for (String page : pages) {
+            final String fileName = page + ".html";
+            io.javalin.http.Handler servePage = ctx -> {
+                java.io.InputStream is = MatchaApp.class.getResourceAsStream("/public/" + fileName);
+                if (is != null) {
+                    ctx.contentType("text/html");
+                    ctx.result(is);
+                } else {
+                    ctx.status(404).result("Halaman tidak ditemukan.");
+                }
+            };
+
+            // Register both '/page.html' and '/page' (and '/' for index) to be forgiving
+            String htmlPath = "/" + (page.equals("index") ? "" : page + ".html");
+            String shortPath = "/" + (page.equals("index") ? "index" : page);
+
+            app.get(htmlPath, servePage);
+            // avoid duplicate root mapping
+            if (!htmlPath.equals(shortPath)) {
+                app.get(shortPath, servePage);
+            }
+        }
+
+        // Serve CSS
+        app.get("/css/<path>", ctx -> {
+            java.io.InputStream is = MatchaApp.class.getResourceAsStream("/public/css/" + ctx.pathParam("path"));
+            if (is != null) { ctx.contentType("text/css").result(is); }
+            else { ctx.status(404); }
+        });
+
+        // Serve JS
+        app.get("/js/<path>", ctx -> {
+            String jsPath = ctx.path().substring("/js/".length());
+            java.io.InputStream is = MatchaApp.class.getResourceAsStream("/public/js/" + jsPath);
+            if (is != null) { ctx.contentType("application/javascript").result(is); }
+            else { ctx.status(404); }
+        });
+
+        // === GLOBAL EXCEPTION HANDLER ===
+        app.exception(Exception.class, (e, ctx) -> {
+            System.err.println("[ERROR] " + e.getClass().getSimpleName() + ": " + e.getMessage());
+            ctx.status(500).json(java.util.Map.of(
+                "status", "error",
+                "message", "Terjadi kesalahan internal pada server."
+            ));
+        });
+
+        // === 404 HANDLER — hanya untuk /api, bukan halaman HTML ===
+        app.error(404, ctx -> {
+            if (ctx.path().startsWith("/api/")) {
+                // Hanya overwrite jika response body masih kosong (artinya benar-benar route tidak ada, bukan dari controller)
+                if (ctx.result() == null || ctx.result().isEmpty()) {
+                    ctx.json(java.util.Map.of("status", "error", "message", "Endpoint tidak ditemukan."));
+                }
+            }
+        });
+
+        app.start(7070);
+        System.out.println("✅ Server Matcha berjalan di http://localhost:7070");
+    }
+
+    private static void migrateDatabase() {
+        try (Connection conn = DBUtil.getConnection();
+             Statement stmt = conn.createStatement()) {
+            try {
+                stmt.executeUpdate("ALTER TABLE users ADD COLUMN profile_photo LONGTEXT DEFAULT NULL");
+                System.out.println("✅ Migrasi DB sukses: kolom profile_photo ditambahkan.");
+            } catch (Exception e) {}
+            
+            try {
+                stmt.executeUpdate("ALTER TABLE notifications ADD COLUMN type VARCHAR(50) DEFAULT 'system'");
+                System.out.println("✅ Migrasi DB sukses: kolom type ditambahkan ke notifications.");
+            } catch (Exception e) {}
+            
+            try {
+                stmt.executeUpdate("ALTER TABLE notifications ADD COLUMN title VARCHAR(100) DEFAULT 'Notifikasi'");
+                System.out.println("✅ Migrasi DB sukses: kolom title ditambahkan ke notifications.");
+            } catch (Exception e) {}
+            
+            try {
+                stmt.executeUpdate("ALTER TABLE notifications ADD COLUMN action_url VARCHAR(255)");
+                System.out.println("✅ Migrasi DB sukses: kolom action_url ditambahkan ke notifications.");
+            } catch (Exception e) {}
+
+            try {
+                stmt.executeUpdate("ALTER TABLE notifications ADD COLUMN is_read BOOLEAN DEFAULT FALSE");
+                System.out.println("✅ Migrasi DB sukses: kolom is_read ditambahkan ke notifications.");
+            } catch (Exception e) {}
+
+            try {
+                stmt.executeUpdate("ALTER TABLE reviews ADD COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP");
+                System.out.println("✅ Migrasi DB sukses: kolom created_at ditambahkan ke reviews.");
+            } catch (Exception e) {}
+        } catch (Exception e) {
+            // Abaikan error koneksi saat migrasi
+        }
     }
 }

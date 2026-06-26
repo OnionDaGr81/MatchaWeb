@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pesanan Saya - Matcha</title>
+    <link rel="stylesheet" href="/css/global.css">
+    <style>
+        .bookings-container {
+            max-width: 1000px;
+            margin: var(--spacing-2xl) auto;
+            padding: var(--spacing-lg);
+        }
+
+        .filters-bar {
+            display: flex;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-xl);
+            flex-wrap: wrap;
+        }
+
+
+
+        .bookings-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: var(--spacing-lg);
+        }
+
+        .booking-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            overflow: hidden;
+            transition: all var(--transition-normal);
+        }
+
+        .booking-card:hover {
+            border-color: var(--primary);
+            box-shadow: var(--shadow-md);
+        }
+
+        .booking-card-header {
+            background-color: var(--bg-input);
+            padding: var(--spacing-md);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .booking-card-header strong {
+            display: block;
+            color: var(--primary);
+            font-size: var(--font-size-lg);
+        }
+
+        .booking-status {
+            padding: var(--spacing-xs) 12px;
+            border-radius: var(--radius-2xl);
+            font-size: var(--font-size-xs);
+            font-weight: bold;
+        }
+
+        .status-pending {
+            background-color: rgba(255, 193, 7, 0.2);
+            color: #ffc107;
+        }
+
+        .status-confirmed {
+            background-color: rgba(143, 188, 143, 0.2);
+            color: var(--success);
+        }
+
+        .status-completed {
+            background-color: rgba(92, 150, 212, 0.2);
+            color: var(--info);
+        }
+
+        .status-cancelled {
+            background-color: rgba(255, 71, 71, 0.2);
+            color: var(--danger);
+        }
+
+        .booking-card-body {
+            padding: var(--spacing-lg);
+        }
+
+        .booking-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .info-label {
+            font-size: var(--font-size-sm);
+            color: var(--text-secondary);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .info-value {
+            font-weight: bold;
+            color: var(--text-primary);
+        }
+
+        .booking-card-footer {
+            padding: var(--spacing-lg);
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: var(--spacing-md);
+            justify-content: flex-end;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: var(--spacing-2xl);
+            color: var(--text-secondary);
+        }
+
+        .empty-state svg {
+            width: 100px;
+            height: 100px;
+            margin-bottom: var(--spacing-lg);
+            opacity: 0.3;
+        }
+
+        .timeline-status {
+            display: flex;
+            gap: var(--spacing-md);
+            margin: var(--spacing-lg) 0;
+            padding: var(--spacing-lg);
+            background-color: var(--bg-input);
+            border-radius: var(--radius-lg);
+        }
+
+        .timeline-step {
+            flex: 1;
+            text-align: center;
+            position: relative;
+        }
+
+        .timeline-step:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 20px;
+            width: 100%;
+            height: 2px;
+            background-color: var(--border);
+            z-index: 0;
+        }
+
+        .timeline-step.active .step-circle {
+            background-color: var(--primary);
+        }
+
+        .step-circle {
+            position: relative;
+            z-index: 1;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto var(--spacing-sm) auto;
+            color: white;
+            font-weight: bold;
+        }
+
+        .step-label {
+            font-size: var(--font-size-xs);
+            color: var(--text-secondary);
+        }
+
+        @media (max-width: 768px) {
+            .booking-info {
+                grid-template-columns: 1fr;
+            }
+
+            .booking-card-footer {
+                flex-direction: column;
+            }
+
+            .filters-bar {
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo" onclick="window.location.href='/'"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" style="vertical-align: text-bottom;"><path d="M2 21h18v-2H2M20 8h-2V5c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v10c0 2.21 1.79 4 4 4h6c2.21 0 4-1.79 4-4v-3h2c1.11 0 2-.89 2-2v-5c0-1.11-.89-2-2-2zm-4 7c0 1.1-.9 2-2 2H6c-1.1 0-2-.9-2-2V5h10v10zm4-4h-2V7h2v4z"/></svg> Matcha<span>Companion</span></div>
+            </div>
+            <div class="sidebar-nav">
+                <div class="sidebar-link" onclick="window.history.back()">Kembali</div>
+                <div class="sidebar-link" onclick="window.location.href='/catalog.html'">Katalog Talent</div>
+                <div class="sidebar-link active" onclick="window.location.href='/my-bookings.html'">Booking Saya</div>
+                <div class="sidebar-link" onclick="window.location.href='/notifications.html'">Notifikasi</div>
+                <div class="sidebar-link" onclick="window.location.href='/reviews-list.html'">Ulasan</div>
+            </div>
+            <div class="sidebar-footer">
+                <button class="btn btn-outline btn-block" onclick="toggleTheme()" style="margin-bottom: 10px;"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" style="vertical-align: text-bottom;"><path d="M12 3a9 9 0 109 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 01-4.4 2.26 5.403 5.403 0 01-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"/></svg> Ganti Tema</button>
+                <button class="btn btn-danger btn-block" onclick="logout()">Keluar</button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-header">
+                <h3 id="page-title" style="margin: 0; color: var(--text-primary);">Pesanan Saya</h3>
+                <div class="user-greeting" id="nav-greeting" style="color: var(--text-secondary); font-size: 14px;"></div>
+            </header>
+            
+            <div class="page-content">
+
+    <!-- Main Content -->
+    <div class="bookings-container">
+        <h1 style="color: var(--primary); margin-bottom: var(--spacing-md);">Pesanan Saya</h1>
+
+        <!-- Filters -->
+        <div class="filters-bar">
+            <div class="filter-chip active" onclick="filterBookings('all')" data-filter="all">Semua</div>
+            <div class="filter-chip" onclick="filterBookings('pending')" data-filter="pending">Pending</div>
+            <div class="filter-chip" onclick="filterBookings('confirmed')" data-filter="confirmed">Dikonfirmasi</div>
+            <div class="filter-chip" onclick="filterBookings('completed')" data-filter="completed">Selesai</div>
+            <div class="filter-chip" onclick="filterBookings('cancelled')" data-filter="cancelled">Dibatalkan</div>
+        </div>
+
+        <!-- Bookings List -->
+        <div id="bookings-container" class="bookings-grid">
+            <div class="spinner" style="margin: var(--spacing-2xl) auto;"></div>
+        </div>
+
+        <!-- Empty State -->
+        <div id="empty-state" class="empty-state" style="display: none;">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
+            <h3>Tidak Ada Pesanan</h3>
+            <p>Anda belum memiliki pesanan dengan status ini</p>
+            <button class="btn btn-primary" onclick="window.location.href='/catalog.html'" style="margin-top: var(--spacing-lg);">
+                Cari Talent Sekarang
+            </button>
+        </div>
+        </div>
+    </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Booking Detail Modal -->
+    <div id="booking-detail-modal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h2>Detail Pesanan</h2>
+                <button class="modal-close" onclick="closeBookingDetailModal()"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+            </div>
+            <div id="booking-detail-modal-body" style="padding: var(--spacing-lg);">
+                <!-- Detail Content goes here -->
+            </div>
+            <div style="padding: var(--spacing-lg); text-align: right; border-top: 1px solid var(--border);">
+                <button class="btn btn-secondary" onclick="closeBookingDetailModal()">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        // Theme Logic
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('matcha_theme', newTheme);
+        }
+        document.documentElement.setAttribute('data-theme', localStorage.getItem('matcha_theme') || 'dark');
+    </script>
+    <script src="/js/services/api.js"></script>
+    <script src="/js/utils/helpers.js"></script>
+    <script src="/js/pages/my-bookings.js"></script>
+</body>
+</html>

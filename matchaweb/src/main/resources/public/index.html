@@ -1,10 +1,246 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <title>Matcha API</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matcha - Premium Rental Companion</title>
+    <link rel="stylesheet" href="/css/global.css">
+    <style>
+        /* Specific Index Styles */
+        .hero {
+            text-align: center;
+            padding: 140px 20px 100px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .hero h1 {
+            font-size: 52px;
+            margin-bottom: 24px;
+            font-weight: 600;
+            line-height: 1.1;
+            letter-spacing: -1px;
+            color: var(--text-primary);
+        }
+
+        .hero h1 span {
+            color: var(--primary);
+        }
+
+        .hero p {
+            color: var(--text-secondary);
+            font-size: 18px;
+            margin-bottom: 40px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.6;
+            font-weight: 400;
+        }
+
+        .talent-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: var(--spacing-lg);
+        }
+
+        .talent-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: var(--spacing-xl);
+            transition: all 0.2s ease;
+            text-align: left;
+        }
+
+        .talent-card:hover {
+            border-color: var(--border-accent);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .talent-card h3 {
+            font-size: 20px;
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+
+        .talent-card .role-badge {
+            display: inline-block;
+            color: var(--primary);
+            font-size: 12px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .talent-card p {
+            color: var(--text-secondary);
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+
+        .empty-state {
+            grid-column: 1/-1;
+            text-align: center;
+            padding: var(--spacing-2xl);
+            background: var(--bg-card);
+            border-radius: var(--radius-xl);
+            border: 1px dashed var(--border);
+            color: var(--text-muted);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-in {
+            animation: fadeIn 0.6s ease forwards;
+            opacity: 0;
+        }
+    </style>
 </head>
 <body>
-    <h1>API Matcha Berhasil Menyala! 🍵</h1>
-    <p>Backend siap menerima request frontend.</p>
+
+    <nav class="old-nav">
+        <div class="logo" style="cursor: pointer;" onclick="window.location.href='/'"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" style="vertical-align: text-bottom;"><path d="M2 21h18v-2H2M20 8h-2V5c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v10c0 2.21 1.79 4 4 4h6c2.21 0 4-1.79 4-4v-3h2c1.11 0 2-.89 2-2v-5c0-1.11-.89-2-2-2zm-4 7c0 1.1-.9 2-2 2H6c-1.1 0-2-.9-2-2V5h10v10zm4-4h-2V7h2v4z"/></svg> Matcha<span>Companion</span></div>
+        <div id="nav-container" style="display: flex; align-items: center; gap: 15px;">
+            <button class="theme-switch-btn" onclick="toggleTheme()" title="Ganti Tema"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" style="vertical-align: text-bottom;"><path d="M12 3a9 9 0 109 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 01-4.4 2.26 5.403 5.403 0 01-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"/></svg></button>
+            <button class="btn btn-primary" onclick="window.location.href='/login.html'">Masuk</button>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <h1 class="animate-in">Temukan <span>Partner Idealmu</span> Hari Ini</h1>
+        <p class="animate-in" style="animation-delay: 0.1s;">Sewa talent eksklusif untuk menemani hari-harimu. Mulai dari teman ngobrol, teman jalan, hingga pendamping acara khusus untukmu.</p>
+        <div class="animate-in" style="animation-delay: 0.2s;">
+            <button class="btn btn-primary btn-lg" onclick="window.location.href='/catalog.html'">Jelajahi Katalog</button>
+        </div>
+    </header>
+
+    <main class="container">
+        <h2 style="border-bottom: 1px solid var(--border); padding-bottom: var(--spacing-md); margin-bottom: 30px;">Talent Pilihan</h2>
+        
+        <div id="talent-listings" class="talent-grid">
+            <div class="empty-state">
+                <i>Memuat talent...</i>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Theme Logic
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('matcha_theme', newTheme);
+        }
+        document.documentElement.setAttribute('data-theme', localStorage.getItem('matcha_theme') || 'dark');
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const userSession = localStorage.getItem('matcha_user');
+            let isTalent = false;
+            
+            if (userSession) {
+                const user = JSON.parse(userSession);
+                const navContainer = document.getElementById('nav-container');
+                const namaDepan = user.nama ? user.nama.split(' ')[0] : 'User'; 
+
+                if (user.role && user.role.toLowerCase() === 'talent') {
+                    isTalent = true;
+                    navContainer.innerHTML = `
+                        <button class="theme-switch-btn" onclick="toggleTheme()" title="Ganti Tema"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" style="vertical-align: text-bottom;"><path d="M12 3a9 9 0 109 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 01-4.4 2.26 5.403 5.403 0 01-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"/></svg></button>
+                        <span style="color: var(--text-secondary); font-size: 14px;">Halo, <b style="color:var(--text-primary);">${namaDepan}</b>!</span>
+                        <button class="btn btn-outline btn-sm" onclick="window.location.href='/dashboard-talent.html'">Ruang Talent</button>
+                        <button class="btn btn-danger btn-sm" onclick="logout()">Keluar</button>
+                    `;
+                    
+                    // Update Hero Section for Talent
+                    const heroTitle = document.querySelector('.hero h1');
+                    if (heroTitle) heroTitle.innerHTML = `Selamat Datang, <span>${namaDepan}</span>`;
+                    
+                    const heroDesc = document.querySelector('.hero p');
+                    if (heroDesc) heroDesc.textContent = 'Kelola layanan, jadwal, dan interaksi dengan klienmu melalui Ruang Talent. Tingkatkan terus performamu!';
+                    
+                    const heroBtn = document.querySelector('.hero .btn-primary');
+                    if (heroBtn) {
+                        heroBtn.textContent = 'Buka Ruang Talent';
+                        heroBtn.onclick = () => window.location.href = '/dashboard-talent.html';
+                    }
+
+                    // Sembunyikan daftar talent pilihan untuk akun talent
+                    const mainContainer = document.querySelector('main.container');
+                    if (mainContainer) mainContainer.style.display = 'none';
+
+                } else {
+                    navContainer.innerHTML = `
+                        <button class="theme-switch-btn" onclick="toggleTheme()" title="Ganti Tema"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" style="vertical-align: text-bottom;"><path d="M12 3a9 9 0 109 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 01-4.4 2.26 5.403 5.403 0 01-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"/></svg></button>
+                        <span style="color: var(--text-secondary); font-size: 14px;">Halo, <b style="color:var(--text-primary);">${namaDepan}</b>!</span>
+                        <button class="btn btn-outline btn-sm" onclick="window.location.href='/dashboard-client.html'">Dashboard</button>
+                        <button class="btn btn-danger btn-sm" onclick="logout()">Keluar</button>
+                    `;
+                }
+            }
+
+            if (!isTalent) {
+                fetchLiveTalents();
+            }
+        });
+
+        function logout() {
+            localStorage.removeItem('matcha_user');
+            window.location.reload(); 
+        }
+
+        function fetchLiveTalents() {
+            const grid = document.getElementById('talent-listings');
+
+            fetch('/api/talents')
+                .then(async response => {
+                    if (!response.ok) {
+                        const errText = await response.text();
+                        throw new Error(`Server Error ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(res => {
+                    grid.innerHTML = ''; 
+                    
+                    if (res.status === 'success') {
+                        const talents = res.data.slice(0, 3);
+                        
+                        if (talents.length === 0) {
+                            grid.innerHTML = `
+                                <div class="empty-state">
+                                    <h3 style="margin-bottom: 8px; color: var(--text-primary); font-weight: 500;">Katalog Masih Kosong</h3>
+                                    <p>Sistem berhasil terhubung! Belum ada data talent di database.</p>
+                                </div>`;
+                            return;
+                        }
+
+                        talents.forEach((talent, index) => {
+                            grid.innerHTML += `
+                                <div class="talent-card animate-in" style="animation-delay: ${0.3 + (index * 0.1)}s;">
+                                    <h3>${talent.nama}</h3>
+                                    <span class="role-badge">Premium ${talent.role}</span>
+                                    <p>Siap menjadi pendamping ceria untuk menemani aktivitas dan acara pentingmu.</p>
+                                    <button class="btn btn-outline btn-block" onclick="window.location.href='/catalog.html'">Lihat Layanan</button>
+                                </div>`;
+                        });
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    grid.innerHTML = `<div class="empty-state" style="border-color: var(--danger); color: var(--danger);">
+                        <h3 style="margin-bottom: 8px; font-weight: 500;">Koneksi Terputus</h3>
+                        <p style="color: var(--text-muted); font-size: 14px;">Pastikan server Java sedang menyala. Detail: ${err.message}</p>
+                    </div>`;
+                });
+        }
+    </script>
 </body>
 </html>

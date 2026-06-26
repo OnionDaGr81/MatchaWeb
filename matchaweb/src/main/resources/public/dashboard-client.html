@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Klien - Matcha</title>
+    <link rel="stylesheet" href="/css/global.css">
+    <style>
+        .container-dash { max-width: 1000px; margin: 0 auto; display: grid; grid-template-columns: 1fr 2fr; gap: var(--spacing-xl); }
+        
+        .profile-panel { background-color: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: var(--spacing-lg); height: fit-content; }
+        .profile-panel h3 { color: var(--primary); margin-bottom: 10px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+        .profile-panel p { color: var(--text-secondary); font-size: 14px; margin-bottom: 8px; }
+        .profile-panel strong { color: var(--text-primary); }
+
+        .history-panel { background-color: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: var(--spacing-lg); }
+        .history-panel h3 { color: var(--primary); margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+        
+        .booking-card { background-color: var(--bg-input); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 15px; margin-bottom: var(--spacing-md); transition: 0.2s; }
+        .booking-card:hover { border-color: var(--border-accent); }
+        .booking-card h4 { margin-bottom: 5px; color: var(--text-primary); font-size: 16px; font-weight: 500; }
+        .booking-card p { font-size: 13px; color: var(--text-secondary); margin-bottom: 5px; }
+        
+        .status-badge { display: inline-block; padding: var(--spacing-xs) 10px; border-radius: var(--radius-xl); font-size: 11px; font-weight: 600; margin-top: 5px; text-transform: uppercase; }
+        .status-pending { background-color: rgba(245, 158, 11, 0.1); color: var(--warning); border: 1px solid var(--warning); }
+        .status-confirmed { background-color: rgba(16, 185, 129, 0.1); color: var(--success); border: 1px solid var(--success); }
+        .status-cancelled { background-color: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid var(--danger); }
+        
+        .empty-state { text-align: center; color: var(--text-muted); font-style: italic; padding: var(--spacing-lg); border: 1px dashed var(--border); border-radius: var(--radius-lg); }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo" onclick="window.location.href='/'"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" style="vertical-align: text-bottom;"><path d="M2 21h18v-2H2M20 8h-2V5c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v10c0 2.21 1.79 4 4 4h6c2.21 0 4-1.79 4-4v-3h2c1.11 0 2-.89 2-2v-5c0-1.11-.89-2-2-2zm-4 7c0 1.1-.9 2-2 2H6c-1.1 0-2-.9-2-2V5h10v10zm4-4h-2V7h2v4z"/></svg> Matcha<span>Companion</span></div>
+            </div>
+            <div class="sidebar-nav">
+                <div class="sidebar-link active" onclick="window.location.href='/dashboard-client.html'">Dashboard</div>
+                <div class="sidebar-link" onclick="window.location.href='/catalog.html'">Katalog Talent</div>
+                <div class="sidebar-link" onclick="window.location.href='/my-bookings.html'">Booking Saya</div>
+                <div class="sidebar-link" onclick="window.location.href='/notifications.html'">Notifikasi</div>
+                <div class="sidebar-link" onclick="window.location.href='/profile.html'">Profil</div>
+                <div class="sidebar-link" onclick="window.location.href='/reviews-list.html'">Ulasan</div>
+            </div>
+            <div class="sidebar-footer">
+                <button class="btn btn-outline btn-block" onclick="toggleTheme()" style="margin-bottom: 10px;"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" style="vertical-align: text-bottom;"><path d="M12 3a9 9 0 109 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 01-4.4 2.26 5.403 5.403 0 01-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"/></svg> Ganti Tema</button>
+                <button class="btn btn-danger btn-block" onclick="logout()">Keluar</button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-header">
+                <h3 id="page-title" style="margin: 0; color: var(--text-primary);">Dashboard</h3>
+                <div class="user-greeting" id="nav-greeting" style="color: var(--text-secondary); font-size: 14px;"></div>
+            </header>
+            
+            <div class="page-content">
+                <div class="container-dash">
+                    <div class="profile-panel">
+                        <h3>Profil Saya</h3>
+                        <p>Nama: <strong id="profile-nama">-</strong></p>
+                        <p>Email: <strong id="profile-email">-</strong></p>
+                        <p>No. Telp: <strong id="profile-telp">-</strong></p>
+                        <p style="margin-top: 15px;"><span class="status-badge status-confirmed">MEMBER AKTIF</span></p>
+                    </div>
+
+                    <div class="history-panel">
+                        <h3>Riwayat Booking</h3>
+                        <div id="booking-container">
+                            <p class="empty-state">Sedang memuat data pesanan...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Theme Logic
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('matcha_theme', newTheme);
+        }
+
+        document.documentElement.setAttribute('data-theme', localStorage.getItem('matcha_theme') || 'dark');
+
+        let currentUser = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const userSession = localStorage.getItem('matcha_user');
+            
+            if (!userSession) {
+                alert("Anda harus masuk terlebih dahulu!");
+                window.location.href = '/login.html';
+                return;
+            }
+
+            currentUser = JSON.parse(userSession);
+
+            if (currentUser.role.toLowerCase() === 'talent') {
+                window.location.href = '/dashboard-talent.html';
+                return;
+            }
+
+            document.getElementById('nav-greeting').innerHTML = `Halo, <b style="color:var(--primary);">${currentUser.nama.split(' ')[0]}</b>!`;
+            document.getElementById('profile-nama').innerText = currentUser.nama;
+            document.getElementById('profile-email').innerText = currentUser.email;
+            document.getElementById('profile-telp').innerText = currentUser.noTelp || '-';
+
+            fetchBookingHistory();
+        });
+
+        function fetchBookingHistory() {
+            const container = document.getElementById('booking-container');
+            
+            fetch(`/api/bookings?userId=${currentUser.id}&role=client`)
+                .then(res => res.json())
+                .then(result => {
+                    container.innerHTML = ''; 
+
+                    if (result.status === 'success') {
+                        const bookings = result.data;
+
+                        if (bookings.length === 0) {
+                            container.innerHTML = `<p class="empty-state">Kamu belum pernah menyewa companion. Yuk jelajahi katalog talent kami!</p>`;
+                            return;
+                        }
+
+                        bookings.forEach(b => {
+                            let statusClass = 'status-pending';
+                            let statusText = 'Menunggu Konfirmasi';
+                            
+                            if (b.status === 'CONFIRMED') { statusClass = 'status-confirmed'; statusText = 'Diterima'; }
+                            else if (b.status === 'CANCELLED') { statusClass = 'status-cancelled'; statusText = 'Ditolak'; }
+                            else if (b.status === 'COMPLETED') { statusClass = 'status-confirmed'; statusText = 'Selesai'; }
+
+                            const tglMulai = new Date(b.waktuMulai).toLocaleString('id-ID');
+                            const tglSelesai = new Date(b.waktuSelesai).toLocaleString('id-ID');
+
+                            container.innerHTML += `
+                                <div class="booking-card">
+                                    <h4>ID Pesanan: ${b.id}</h4>
+                                    <p>ID Layanan: ${b.serviceId}</p>
+                                    <p>Jadwal: ${tglMulai} - ${tglSelesai}</p>
+                                    <span class="status-badge ${statusClass}">${statusText}</span>
+                                </div>
+                            `;
+                        });
+                    }
+                })
+                .catch(err => {
+                    container.innerHTML = `<p class="empty-state" style="color: var(--danger);">Gagal menarik data dari server.</p>`;
+                });
+        }
+
+        function logout() {
+            localStorage.removeItem('matcha_user');
+            window.location.href = '/'; 
+        }
+    </script>
+</body>
+</html>
